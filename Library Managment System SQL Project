@@ -1,0 +1,159 @@
+create database globallibrary; 
+
+CREATE TABLE library_members (
+    member_id INT PRIMARY KEY AUTO_INCREMENT,
+    member_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    join_date DATE,
+    phone_number VARCHAR(20)
+);
+
+CREATE TABLE books (
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+    book_title VARCHAR(100) NOT NULL,
+    book_author VARCHAR(100) NOT NULL,
+    book_isbn VARCHAR(20) UNIQUE,
+    published_year INT,
+    genre VARCHAR(50)
+);
+
+CREATE TABLE book_copies (
+    copy_id INT PRIMARY KEY AUTO_INCREMENT,
+    book_id INT NOT NULL,
+    status ENUM('Available', 'Checked Out', 'Lost') DEFAULT 'Available',
+    FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE
+);
+
+CREATE TABLE loans (
+    loan_id INT PRIMARY KEY AUTO_INCREMENT,
+    copy_id INT NOT NULL,
+    member_id INT NOT NULL,
+    checkout_date DATE,
+    due_date DATE,
+    return_date DATE,
+    FOREIGN KEY (copy_id) REFERENCES book_copies(copy_id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES library_members(member_id) ON DELETE CASCADE
+);
+
+CREATE TABLE WELCOMELETTER(
+    MEMBER_ID INT PRIMARY KEY AUTO_INCREMENT,
+    STATUS_MEMBER VARCHAR(100),
+	JOINDATE_TIME DATETIME
+);    
+
+DROP TABLE WELCOMELETTER;
+
+insert into Library_Members
+(Member_Name,Email,Join_date,Phone_number) values
+('Santhosh sivam','san123@gmail.com',current_date(),'9656123499'),
+('Sibihrithik','sibi123@gmail.com',current_date(),'9987345689'),
+('Praveenkumar','praveen123@gmail.com',current_date(),'8656490923'),
+('Santosh','santy123@gmail.com',current_date(),'9952347841'),
+('Vignesh','vigi123@gmail.com',current_date(),'9976883456'),
+('Vishnu','vish123@gmail.com',current_date(),'8765438798'),
+('Ramkumar','ram123@gmail.com',current_date(),'9652323499'),
+('Kumaravel','kumar123@gmail.com',current_date(),'9987789689'),
+('Chetan','chetan123@gmail.com',current_date(),'8656234923'),
+('Lavanya','lava123@gmail.com',current_date(),'9952234841'),
+('Aditi','aditi123@gmail.com',current_date(),'9976867456'),
+('Kamala harris','kama123@gmail.com',current_date(),'8765358798');
+
+insert into Books
+(Book_Title,Book_Author,Book_isbn,Published_year,genre) values
+('The Great Adventure', 'Jane Doe', '1234567890', 2020, 'Fiction'),
+('Database Basics', 'Alan Turing', '2345678901', 2019, 'Education'),
+('Cooking 101', 'Julia Child', '3456789012', 2021, 'Cookbook'),
+('Dreams','Starboy','9940244033',2002,'Fiction'),
+('Mein Kampf','Adolf Hitler','2468135790',1930,'Politics'),
+('Dream Beyond Shadows','KarthikayaLadha','8675435667',2004,'Fiction'),
+('Desant','Johnston','7867564534',2011,'Fiction'),
+('The Way Of Wolf','Jorden Belfort','9876564564',2020,'Education'),
+('Zero Sum','Markey Eliser','65745463356',2023,'Fiction'),
+('Tell No One','Harley Coben','7656490923',2009,'Fiction');
+
+insert into book_copies
+(Book_id,status) values
+(1,'Available'),
+(2,'Lost'),
+(3,'Available'),
+(4,'Checked Out'),
+(5,'Checked Out'),
+(6,'Available'),
+(7,'Lost'),
+(8,'Available'),
+(9,'Checked Out'),
+(10,'Available');
+
+INSERT INTO loans 
+(copy_id, member_id, checkout_date, due_date) VALUES
+(1, 1, '2023-10-01', '2023-10-15'),
+(3, 2, '2023-10-05', '2023-10-19'),
+(4, 3, '2023-10-10', '2023-10-24');
+
+select * from library_members;
+select * from books;
+select * from book_copies;
+select * from loans;
+
+## 1.Available books in Fiction genre?
+
+select * from books 
+books inner join book_copies book_copies on 
+books.book_id where book_copies.status = 'Available' and books.genre = 'Fiction';
+
+## 2.Members who never borrowed books?
+
+
+
+select * from library_members 
+members left join loans
+loans on members.member_id = loans.member_id where loans.loan_id is null;
+
+## after joining to library members new meaasge status time and date was stored using triggers
+
+DELIMITER $$
+CREATE TRIGGER LIB_MEMBERS_STATUS
+AFTER INSERT 
+ON library_members
+FOR EACH ROW
+BEGIN 
+	INSERT INTO WELCOMELETTER(STATUS_MEMBER,JOINDATE_TIME)
+	VALUES ('JOINED',NOW());
+END $$
+
+DELIMITER ;
+
+INSERT INTO library_members (MEMBER_NAME,EMAIL,JOIN_DATE,PHONE_NUMBER)
+VALUES
+('Yoga lakshmi','yoga123@gmail.com',current_date(),'9444301389');
+
+SELECT * FROM WELCOMELETTER;
+
+## 4. Books published after 2020 with availability status.
+
+SELECT * FROM books
+books INNER JOIN book_copies book_copies ON 
+books.book_id = book_copies.book_id WHERE books.published_year > 2020;
+
+## 5. auto create first copy for new books.
+
+DELIMITER $$
+CREATE TRIGGER add_first_copy
+AFTER INSERT ON books
+FOR EACH ROW
+BEGIN
+    
+    INSERT INTO book_copies (book_id, status)
+    VALUES (NEW.book_id, 'Available');
+    
+END $$
+
+DELIMITER ;    
+
+drop trigger add_first_copy;
+
+insert into books (book_title, book_author)
+values
+('Recorrection','Leo Tolstoy');
+
+drop database globallibrary; 
