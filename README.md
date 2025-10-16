@@ -1,6 +1,8 @@
 Library Management System
 A Python-based Library Management System that provides an efficient digital solution for managing library operations. The system connects to a MySQL database to handle member registrations, book catalog management, and borrowing processes.
 
+
+
 🚀 Features
 Member Registration: New member sign-up with personal details
 
@@ -12,12 +14,16 @@ Payment Processing: Multiple payment options (Cash, Card, UPI, Wallet)
 
 Database Integration: Secure MySQL backend for data persistence
 
+
+
 💻 Technology Stack
 Python with MySQL Connector
 
 MySQL Database
 
 Object-Oriented Programming principles
+
+
 
 📋 Key Functionalities
 Real-time book availability checking
